@@ -156,6 +156,9 @@ class ErrorbarContainer(Container):
         self.has_yerr = has_yerr
         Container.__init__(self, lines, **kwargs)
 
+class BulletContainer(Container):
+    def __init__(self):
+        pass
 
 class StemContainer(Container):
     """

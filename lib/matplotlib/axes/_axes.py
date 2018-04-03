@@ -2539,6 +2539,108 @@ class Axes(_AxesBase):
 
         return col
 
+    @_preprocess_data(label_namer=None)
+    @docstring.dedent_interpd
+    def bullet(self, *args, **kwargs):
+        '''
+        Create a bullet graph
+
+        Bullet graph plots horizontal bars with background colours 
+        representing ranges, such as poor, average, good. 
+        The range color is calculated with a linear interpolation from
+        the starting color to the ending color.
+
+        Call signature::
+
+          bullet(x, ranges, startcolor='grey', endcolor='white')
+
+        Parameters
+        ----------
+        x : array-like
+            The x coordinates of the bars
+
+        ranges : array-like
+            2D array of the x coordinates for the ranges of each bar
+
+        startcolor : scalar, optional, default: 'grey'
+            Starting color of the ranges
+
+        endcolor : scalar, optional, default: 'white'
+            Ending color of the ranges
+
+        labels : array-like, optional
+            Label of each bar
+
+        targets : array-like, optional
+            The x coordinates of the target value
+
+        targetcolor: scalar or array-like, optional
+            The color of the target line
+
+        Returns
+        -------
+        `.BulletContainer`
+            Container with all the bars, ranges and targets.
+
+        Other Parameters
+        ----------------
+        height : scalar
+            Height of the bar
+
+        rheight : scalar
+            Height of the ranges
+
+        theight : scalar, optional, default: .5
+            Height of target line
+        '''
+        x = args[0]
+
+        # Format ranges so that it is the difference rather than 
+        # absolute coordinate.
+        ranges = [np.diff([0] + r) for r in args[1]]
+        ranges = list(zip(*ranges))
+
+        height = kwargs.pop('height', 0.3)
+        rheight = kwargs.pop('rheight', 0.8)
+
+        labels = kwargs.pop('labels', None)
+        color = kwargs.pop('color', 'k')
+        cstart = kwargs.pop('startcolor', 'grey')
+        cend = kwargs.pop('endcolor', 'white')
+
+        targets = kwargs.pop('targets', None)
+        theight = kwargs.pop('theight', 0.5)
+        tcolor = kwargs.pop('targetcolor', 'black')
+
+        n = len(x)
+        ind = np.arange(len(x))
+
+        # Produce n+1 gradients so that we don't include the end color
+        # in the result.
+        g = mcolors.linear_gradient(cstart, cend, len(ranges)+1)
+        #print(g)
+
+        self.set_yticks(ind)
+        if labels:
+            self.set_yticklabels(labels)
+
+        l = np.array([0 for i in range(n)])
+        for i, r in enumerate(ranges):
+            self.barh(ind, r, left=l, height=rheight, color=g[i])
+            l += r
+
+        if targets:
+            ths = [theight] * n
+            print(ths, -theight/2 * np.array(ths))
+            pmax = -.5 * np.array(ths) + ind
+            pmin =  .5 * np.array(ths) + ind
+            print("min/max:")
+            print(pmin)
+            print(pmax)
+            self.vlines(targets, pmax, pmin, colors=tcolor)
+
+        self.barh(ind, x, color=color, height=height)
+
     @_preprocess_data(replace_all_args=True, label_namer=None)
     def stem(self, *args, **kwargs):
         """

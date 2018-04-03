@@ -285,6 +285,26 @@ def to_hex(c, keep_alpha=False):
                          for val in c)
 
 
+def linear_gradient(start, finish, n):
+    ''' 
+    Returns a gradient list of *n* rgba colors between
+    *start* and *finish* colors.
+    '''
+    # Convert colors to rgba form
+    s = to_rgba(start)
+    f = to_rgba(finish)
+
+    RGB_list = [s]
+    for t in range(1, n):
+        curr_vector = [
+            s[j] + (float(t)/(n-1))*(f[j]-s[j])
+            for j in range(4)
+            ]
+        RGB_list.append(curr_vector)
+
+    return RGB_list
+
+
 ### Backwards-compatible color-conversion API
 
 
