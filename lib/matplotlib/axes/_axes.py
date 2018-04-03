@@ -2416,7 +2416,6 @@ class Axes(_AxesBase):
         # Produce n+1 gradients so that we don't include the end color
         # in the result.
         g = mcolors.linear_gradient(cstart, cend, len(ranges)+1)
-        #print(g)
 
         self.set_yticks(ind)
         if labels:
