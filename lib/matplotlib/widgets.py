@@ -9,12 +9,7 @@ be too smart with respect to layout -- you will have to figure out how
 wide and tall you want your Axes to be to accommodate your widget.
 """
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
 import copy
-import six
-from six.moves import zip
 
 import numpy as np
 from matplotlib import rcParams
@@ -221,7 +216,7 @@ class Button(AxesWidget):
             return
         if event.inaxes != self.ax:
             return
-        for cid, func in six.iteritems(self.observers):
+        for cid, func in self.observers.items():
             func(event)
 
     def _motion(self, event):
@@ -438,7 +433,7 @@ class Slider(AxesWidget):
         self.val = val
         if not self.eventson:
             return
-        for cid, func in six.iteritems(self.observers):
+        for cid, func in self.observers.items():
             func(val)
 
     def on_changed(self, func):
@@ -602,7 +597,7 @@ class CheckButtons(AxesWidget):
 
         if not self.eventson:
             return
-        for cid, func in six.iteritems(self.observers):
+        for cid, func in self.observers.items():
             func(self.labels[index].get_text())
 
     def get_status(self):
@@ -684,7 +679,7 @@ class TextBox(AxesWidget):
 
         self.DIST_FROM_LEFT = .05
 
-        self.params_to_disable = [key for key in rcParams if u'keymap' in key]
+        self.params_to_disable = [key for key in rcParams if 'keymap' in key]
 
         self.text = initial
         self.label = ax.text(-label_pad, 0.5, label,
@@ -759,7 +754,7 @@ class TextBox(AxesWidget):
         self.ax.figure.canvas.draw()
 
     def _notify_submit_observers(self):
-        for cid, func in six.iteritems(self.submit_observers):
+        for cid, func in self.submit_observers.items():
                 func(self.text)
 
     def _release(self, event):
@@ -818,7 +813,7 @@ class TextBox(AxesWidget):
         self._notify_submit_observers()
 
     def _notify_change_observers(self):
-        for cid, func in six.iteritems(self.change_observers):
+        for cid, func in self.change_observers.items():
             func(self.text)
 
     def begin_typing(self, x):
@@ -986,6 +981,13 @@ class RadioButtons(AxesWidget):
         cnt = 0
         axcolor = ax.get_facecolor()
 
+        # scale the radius of the circle with the spacing between each one
+        circle_radius = (dy / 2) - 0.01
+
+        # defaul to hard-coded value if the radius becomes too large
+        if(circle_radius > 0.05):
+            circle_radius = 0.05
+
         self.labels = []
         self.circles = []
         for y, label in zip(ys, labels):
@@ -999,7 +1001,7 @@ class RadioButtons(AxesWidget):
             else:
                 facecolor = axcolor
 
-            p = Circle(xy=(0.15, y), radius=0.05, edgecolor='black',
+            p = Circle(xy=(0.15, y), radius=circle_radius, edgecolor='black',
                        facecolor=facecolor, transform=ax.transAxes)
 
             self.labels.append(t)
@@ -1051,7 +1053,7 @@ class RadioButtons(AxesWidget):
 
         if not self.eventson:
             return
-        for cid, func in six.iteritems(self.observers):
+        for cid, func in self.observers.items():
             func(self.labels[index].get_text())
 
     def on_clicked(self, func):
@@ -2132,6 +2134,11 @@ class RectangleSelector(_SelectorWidget):
         if self.active_handle is None or not self.interactive:
             # Clear previous rectangle before drawing new rectangle.
             self.update()
+
+        if not self.interactive:
+            x = event.xdata
+            y = event.ydata
+            self.extents = x, x, y, y
 
         self.set_visible(self.visible)
 
