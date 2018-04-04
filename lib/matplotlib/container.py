@@ -155,8 +155,10 @@ class ErrorbarContainer(Container):
         Container.__init__(self, lines, **kwargs)
 
 class BulletContainer(Container):
-    def __init__(self):
-        pass
+    def __init__(self, bars, rbars, targets=None, **kwargs):
+        self.bars = bars
+        self.rbars = rbars
+        self.targets = targets
 
 class StemContainer(Container):
     """

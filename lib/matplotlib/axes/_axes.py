@@ -36,7 +36,8 @@ import matplotlib.tri as mtri
 from matplotlib.cbook import (
     mplDeprecation, warn_deprecated, STEP_LOOKUP_MAP, iterable,
     safe_first_element)
-from matplotlib.container import BarContainer, ErrorbarContainer, StemContainer
+from matplotlib.container import BarContainer, BulletContainer, \
+    ErrorbarContainer, StemContainer
 from matplotlib.axes._base import _AxesBase, _process_plot_format
 
 _log = logging.getLogger(__name__)
@@ -2421,22 +2422,21 @@ class Axes(_AxesBase):
         if labels:
             self.set_yticklabels(labels)
 
+        rbars = []
         l = np.array([0 for i in range(n)])
         for i, r in enumerate(ranges):
-            self.barh(ind, r, left=l, height=rheight, color=g[i])
+            rbars.append(self.barh(ind, r, left=l, height=rheight, color=g[i]))
             l += r
 
+        targetlines = []
         if targets:
             ths = [theight] * n
-            print(ths, -theight/2 * np.array(ths))
             pmax = -.5 * np.array(ths) + ind
             pmin =  .5 * np.array(ths) + ind
-            print("min/max:")
-            print(pmin)
-            print(pmax)
-            self.vlines(targets, pmax, pmin, colors=tcolor)
+            targetlines.append(self.vlines(targets, pmax, pmin, colors=tcolor))
 
-        self.barh(ind, x, color=color, height=height)
+        patches = self.barh(ind, x, color=color, height=height)
+        return BulletContainer(patches, rbars, targetlines)
 
     @_preprocess_data(replace_all_args=True, label_namer=None)
     def stem(self, *args, **kwargs):
